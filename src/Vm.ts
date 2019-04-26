@@ -1,10 +1,10 @@
 import Ptr from "@json-schema-language/json-pointer";
 import CompiledSchema from "./CompiledSchema";
+import MaxDepthExceededError from "./MaxDepthExceededError";
 import NoSuchSchemaError from "./NoSuchSchemaError";
 import Registry from "./Registry";
 import RegistryNotSealedError from "./RegistryNotSealedError";
 import { ValidationError } from "./Validator";
-import MaxDepthExceededError from "./MaxDepthExceededError";
 
 export default class Vm {
   public static validate(
