@@ -290,5 +290,106 @@ describe("CompiledSchema", () => {
         extra: {},
       });
     });
+
+    it("handles elements form", () => {
+      expect(
+        compileSchema({
+          elements: {},
+        }),
+      ).toEqual({
+        root: {
+          definitions: {},
+        },
+        form: {
+          form: "elements",
+          schema: {
+            form: { form: "empty" },
+            extra: {},
+          },
+        },
+        extra: {},
+      });
+    });
+
+    it("handles properties form", () => {
+      expect(
+        compileSchema({
+          properties: {
+            a: {},
+          },
+          optionalProperties: {
+            b: {},
+          },
+        }),
+      ).toEqual({
+        root: {
+          definitions: {},
+        },
+        form: {
+          form: "properties",
+          required: {
+            a: {
+              form: { form: "empty" },
+              extra: {},
+            },
+          },
+          optional: {
+            b: {
+              form: { form: "empty" },
+              extra: {},
+            },
+          },
+        },
+        extra: {},
+      });
+    });
+
+    it("handles values form", () => {
+      expect(
+        compileSchema({
+          values: {},
+        }),
+      ).toEqual({
+        root: {
+          definitions: {},
+        },
+        form: {
+          form: "values",
+          schema: {
+            form: { form: "empty" },
+            extra: {},
+          },
+        },
+        extra: {},
+      });
+    });
+
+    it("handles discriminator form", () => {
+      expect(
+        compileSchema({
+          discriminator: {
+            tag: "foo",
+            mapping: {
+              a: {},
+            },
+          },
+        }),
+      ).toEqual({
+        root: {
+          definitions: {},
+        },
+        form: {
+          form: "discriminator",
+          tag: "foo",
+          mapping: {
+            a: {
+              form: { form: "empty" },
+              extra: {},
+            },
+          },
+        },
+        extra: {},
+      });
+    });
   });
 });

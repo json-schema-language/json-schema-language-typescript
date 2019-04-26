@@ -53,6 +53,66 @@ function compileSchemaWithBase(
     }
   }
 
+  if (schema.elements !== undefined) {
+    if (form.form !== "empty") {
+      throw new InvalidFormError();
+    }
+
+    form = {
+      form: "elements",
+      schema: compileSchemaWithBase(base, false, schema.elements),
+    };
+  }
+
+  if (
+    schema.properties !== undefined ||
+    schema.optionalProperties !== undefined
+  ) {
+    if (form.form !== "empty") {
+      throw new InvalidFormError();
+    }
+
+    const required: { [name: string]: CompiledSchema } = {};
+    for (const [name, subSchema] of Object.entries(schema.properties || {})) {
+      required[name] = compileSchemaWithBase(base, false, subSchema);
+    }
+
+    const optional: { [name: string]: CompiledSchema } = {};
+    for (const [name, subSchema] of Object.entries(
+      schema.optionalProperties || {},
+    )) {
+      optional[name] = compileSchemaWithBase(base, false, subSchema);
+    }
+
+    form = { form: "properties", required, optional };
+  }
+
+  if (schema.values !== undefined) {
+    if (form.form !== "empty") {
+      throw new InvalidFormError();
+    }
+
+    form = {
+      form: "values",
+      schema: compileSchemaWithBase(base, false, schema.values),
+    };
+  }
+
+  if (schema.discriminator !== undefined) {
+    if (form.form !== "empty") {
+      throw new InvalidFormError();
+    }
+
+    const mapping: { [name: string]: CompiledSchema } = {};
+    for (const [name, subSchema] of Object.entries(
+      schema.discriminator.mapping,
+    )) {
+      mapping[name] = compileSchemaWithBase(base, false, subSchema);
+    }
+
+    form = { form: "discriminator", tag: schema.discriminator.tag, mapping };
+  }
+
   return { root, form, extra };
 }
 
@@ -117,7 +177,7 @@ export interface TypeForm {
 
 export interface ElementsForm {
   form: "elements";
-  elements: CompiledSchema;
+  schema: CompiledSchema;
 }
 
 export interface PropertiesForm {
@@ -128,7 +188,7 @@ export interface PropertiesForm {
 
 export interface ValuesForm {
   form: "values";
-  values: CompiledSchema;
+  schema: CompiledSchema;
 }
 
 export interface DiscriminatorForm {
