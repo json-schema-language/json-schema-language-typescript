@@ -88,7 +88,12 @@ function compileSchemaWithBase(
       optional[name] = compileSchemaWithBase(base, false, subSchema);
     }
 
-    form = { form: "properties", required, optional };
+    form = {
+      form: "properties",
+      hasProperties: schema.properties !== undefined,
+      required,
+      optional,
+    };
   }
 
   if (schema.values !== undefined) {
@@ -203,6 +208,7 @@ export interface ElementsForm {
 
 export interface PropertiesForm {
   form: "properties";
+  hasProperties: boolean;
   required: { [name: string]: CompiledSchema };
   optional: { [name: string]: CompiledSchema };
 }

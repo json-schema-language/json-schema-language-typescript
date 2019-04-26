@@ -328,6 +328,7 @@ describe("CompiledSchema", () => {
         },
         form: {
           form: "properties",
+          hasProperties: true,
           required: {
             a: {
               form: { form: "empty" },
@@ -395,7 +396,12 @@ describe("CompiledSchema", () => {
           tag: "foo",
           mapping: {
             a: {
-              form: { form: "properties", required: {}, optional: {} },
+              form: {
+                form: "properties",
+                hasProperties: true,
+                required: {},
+                optional: {},
+              },
               extra: {},
             },
           },

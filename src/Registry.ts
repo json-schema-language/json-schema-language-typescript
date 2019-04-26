@@ -27,6 +27,14 @@ export default class Registry {
     return this.missingIds;
   }
 
+  public getMissingIds(): URL[] {
+    return this.missingIds;
+  }
+
+  public isSealed(): boolean {
+    return this.missingIds.length === 0;
+  }
+
   public get(id: URL | undefined) {
     return this.registry[this.idToKey(id)];
   }
