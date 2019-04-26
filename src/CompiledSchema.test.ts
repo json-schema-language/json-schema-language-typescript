@@ -1,4 +1,5 @@
 import { compileSchema } from "./CompiledSchema";
+import InvalidFormError from "./InvalidForm";
 
 describe("CompiledSchema", () => {
   describe("compileSchema", () => {
@@ -342,6 +343,17 @@ describe("CompiledSchema", () => {
         },
         extra: {},
       });
+
+      expect(() => {
+        compileSchema({
+          properties: {
+            a: {},
+          },
+          optionalProperties: {
+            a: {},
+          },
+        });
+      }).toThrow(new InvalidFormError());
     });
 
     it("handles values form", () => {
@@ -370,7 +382,7 @@ describe("CompiledSchema", () => {
           discriminator: {
             tag: "foo",
             mapping: {
-              a: {},
+              a: { properties: {} },
             },
           },
         }),
@@ -383,13 +395,69 @@ describe("CompiledSchema", () => {
           tag: "foo",
           mapping: {
             a: {
-              form: { form: "empty" },
+              form: { form: "properties", required: {}, optional: {} },
               extra: {},
             },
           },
         },
         extra: {},
       });
+
+      expect(() => {
+        compileSchema({
+          discriminator: {
+            tag: "foo",
+            mapping: {
+              a: {},
+            },
+          },
+        });
+      }).toThrow(new InvalidFormError());
+
+      expect(() => {
+        compileSchema({
+          discriminator: {
+            tag: "foo",
+            mapping: {
+              a: {
+                properties: {
+                  foo: {},
+                },
+              },
+            },
+          },
+        });
+      }).toThrow(new InvalidFormError());
+
+      expect(() => {
+        compileSchema({
+          discriminator: {
+            tag: "foo",
+            mapping: {
+              a: {
+                optionalProperties: {
+                  foo: {},
+                },
+              },
+            },
+          },
+        });
+      }).toThrow(new InvalidFormError());
+
+      // expect(
+      //   () => {
+      //     compileSchema({
+      //       discriminator: {
+      //         tag: "foo",
+      //         mapping: {
+      //           a: {},
+      //         },
+      //       },
+      //     }),
+      //   },
+      // ).toThrowError(
+      //   new InvalidFormError(),
+      // );
     });
   });
 });

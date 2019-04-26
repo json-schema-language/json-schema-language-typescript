@@ -77,7 +77,16 @@ describe("Registry", () => {
           c: { properties: { a: { ref: "/3" } } },
           d: { optionalProperties: { a: { ref: "/4" } } },
           e: { values: { ref: "/5" } },
-          f: { discriminator: { tag: "foo", mapping: { a: { ref: "/6 " } } } },
+          f: {
+            discriminator: {
+              tag: "foo",
+              mapping: {
+                a: {
+                  properties: { a: { ref: "/6 " } },
+                },
+              },
+            },
+          },
         },
       }),
     );

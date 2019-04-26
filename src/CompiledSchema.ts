@@ -81,6 +81,10 @@ function compileSchemaWithBase(
     for (const [name, subSchema] of Object.entries(
       schema.optionalProperties || {},
     )) {
+      if (required.hasOwnProperty(name)) {
+        throw new InvalidFormError();
+      }
+
       optional[name] = compileSchemaWithBase(base, false, subSchema);
     }
 
@@ -107,7 +111,24 @@ function compileSchemaWithBase(
     for (const [name, subSchema] of Object.entries(
       schema.discriminator.mapping,
     )) {
-      mapping[name] = compileSchemaWithBase(base, false, subSchema);
+      const compiled = compileSchemaWithBase(base, false, subSchema);
+      if (compiled.form.form === "properties") {
+        for (const property of Object.keys(compiled.form.required)) {
+          if (property === schema.discriminator.tag) {
+            throw new InvalidFormError();
+          }
+        }
+
+        for (const property of Object.keys(compiled.form.optional)) {
+          if (property === schema.discriminator.tag) {
+            throw new InvalidFormError();
+          }
+        }
+      } else {
+        throw new InvalidFormError();
+      }
+
+      mapping[name] = compiled;
     }
 
     form = { form: "discriminator", tag: schema.discriminator.tag, mapping };
