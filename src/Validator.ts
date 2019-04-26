@@ -15,6 +15,7 @@ export default class Validator {
     return Vm.validate(
       this.config.maxErrors,
       this.config.maxDepth,
+      this.config.strictInstanceSemantics,
       this.registry,
       schemaId,
       instance,
@@ -25,11 +26,13 @@ export default class Validator {
 export interface ValidatorConfig {
   maxDepth: number;
   maxErrors: number;
+  strictInstanceSemantics: boolean;
 }
 
 export const DEFAULT_VALIDATOR_CONFIG = {
   maxDepth: 32,
   maxErrors: 0,
+  strictInstanceSemantics: false,
 };
 
 export interface ValidationError {

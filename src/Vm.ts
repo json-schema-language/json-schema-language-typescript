@@ -10,6 +10,7 @@ export default class Vm {
   public static validate(
     maxErrors: number,
     maxDepth: number,
+    strictInstanceSemantics: boolean,
     registry: Registry,
     id: URL | undefined,
     instance: any,
@@ -23,7 +24,13 @@ export default class Vm {
       throw new NoSuchSchemaError();
     }
 
-    const vm = new Vm(maxErrors, maxDepth, registry, id);
+    const vm = new Vm(
+      maxErrors,
+      maxDepth,
+      strictInstanceSemantics,
+      registry,
+      id,
+    );
 
     try {
       vm.eval(schema, instance);
@@ -40,6 +47,7 @@ export default class Vm {
 
   private maxErrors: number;
   private maxDepth: number;
+  private strictInstanceSemantics: boolean;
   private registry: Registry;
   private instanceTokens: string[];
   private schemas: Array<{ id: URL | undefined; tokens: string[] }>;
@@ -48,18 +56,20 @@ export default class Vm {
   constructor(
     maxErrors: number,
     maxDepth: number,
+    strictInstanceSemantics: boolean,
     registry: Registry,
     id: URL | undefined,
   ) {
     this.maxErrors = maxErrors;
     this.maxDepth = maxDepth;
+    this.strictInstanceSemantics = strictInstanceSemantics;
     this.registry = registry;
     this.instanceTokens = [];
     this.schemas = [{ id, tokens: [] }];
     this.errors = [];
   }
 
-  private eval(schema: CompiledSchema, instance: any) {
+  private eval(schema: CompiledSchema, instance: any, parentTag?: string) {
     switch (schema.form.form) {
       case "empty":
         return;
@@ -178,6 +188,28 @@ export default class Vm {
             }
           }
           this.popSchemaToken();
+
+          if (this.strictInstanceSemantics) {
+            if (schema.form.hasProperties) {
+              this.pushSchemaToken("properties");
+            } else {
+              this.pushSchemaToken("optionalProperties");
+            }
+
+            for (const name of Object.keys(instance)) {
+              if (
+                name !== parentTag &&
+                !schema.form.required.hasOwnProperty(name) &&
+                !schema.form.optional.hasOwnProperty(name)
+              ) {
+                this.pushInstanceToken(name);
+                this.pushError();
+                this.popInstanceToken();
+              }
+            }
+
+            this.popSchemaToken();
+          }
         } else {
           if (schema.form.hasProperties) {
             this.pushSchemaToken("properties");
@@ -225,7 +257,11 @@ export default class Vm {
               if (schema.form.mapping.hasOwnProperty(tagValue)) {
                 this.pushSchemaToken("mapping");
                 this.pushSchemaToken(tagValue);
-                this.eval(schema.form.mapping[tagValue], instance);
+                this.eval(
+                  schema.form.mapping[tagValue],
+                  instance,
+                  schema.form.tag,
+                );
                 this.popSchemaToken();
                 this.popSchemaToken();
               } else {

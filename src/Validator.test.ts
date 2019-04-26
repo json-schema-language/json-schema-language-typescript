@@ -4,7 +4,6 @@ import { compileSchema } from "./CompiledSchema";
 import MaxDepthExceededError from "./MaxDepthExceededError";
 import Registry from "./Registry";
 import Validator, { DEFAULT_VALIDATOR_CONFIG } from "./Validator";
-import Ptr from "@json-schema-language/json-pointer";
 
 describe("Validator", () => {
   it("supports maxDepth", () => {
@@ -38,7 +37,13 @@ describe("Validator", () => {
         );
         const tests = JSON.parse(contents);
 
-        for (const { name, registry, schema, instances } of tests) {
+        for (const {
+          name,
+          registry,
+          schema,
+          strictInstance,
+          instances,
+        } of tests) {
           describe(name, () => {
             const reg = new Registry();
 
@@ -47,7 +52,10 @@ describe("Validator", () => {
               reg.register(compileSchema(testSchema));
             }
 
-            const validator = new Validator(reg);
+            const validator = new Validator(reg, {
+              ...DEFAULT_VALIDATOR_CONFIG,
+              strictInstanceSemantics: strictInstance,
+            });
 
             for (const [index, { instance, errors }] of instances.entries()) {
               it(index.toString(), () => {
