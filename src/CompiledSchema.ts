@@ -1,5 +1,5 @@
-import Schema from "./Schema";
 import InvalidFormError from "./InvalidForm";
+import Schema from "./Schema";
 
 /**
  * CompiledSchema is a type-safe representation of valid JSL schemas.
