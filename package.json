@@ -4,6 +4,32 @@
   "description": "A TypeScript / JavaScript / Node.js implementation of JSON Schema Language",
   "main": "lib/index.js",
   "repository": "ssh://git@github.com/json-schema-language/json-schema-language-typescript.git",
-  "author": "Ulysse Carion <ulysse@segment.com>",
-  "license": "MIT"
+  "author": "Ulysse Carion <ulyssecarion@gmail.com>",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "jest": "^24.7.1",
+    "prettier": "^1.17.0",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "lint": "tslint --project .",
+    "fmt": "prettier --write src/**/*.ts"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "rootDir": "src",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ]
+  }
 }
