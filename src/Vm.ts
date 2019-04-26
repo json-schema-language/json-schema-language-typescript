@@ -4,6 +4,7 @@ import NoSuchSchemaError from "./NoSuchSchemaError";
 import Registry from "./Registry";
 import RegistryNotSealedError from "./RegistryNotSealedError";
 import { ValidationError } from "./Validator";
+import MaxDepthExceededError from "./MaxDepthExceededError";
 
 export default class Vm {
   public static validate(
@@ -23,7 +24,17 @@ export default class Vm {
     }
 
     const vm = new Vm(maxErrors, maxDepth, registry, id);
-    vm.eval(schema, instance);
+
+    try {
+      vm.eval(schema, instance);
+    } catch (err) {
+      // TooManyErrorsError is just a short-circuiting mechanism. It is not a
+      // real error. All other errors are real.
+      if (!(err instanceof TooManyErrorsError)) {
+        throw err;
+      }
+    }
+
     return vm.errors;
   }
 
@@ -53,6 +64,10 @@ export default class Vm {
       case "empty":
         return;
       case "ref":
+        if (this.schemas.length === this.maxDepth) {
+          throw new MaxDepthExceededError();
+        }
+
         const schemaTokens =
           schema.form.refDef === undefined
             ? []
@@ -264,5 +279,12 @@ export default class Vm {
       schemaPath: new Ptr([...this.schemas[this.schemas.length - 1].tokens]),
       schemaId: this.schemas[this.schemas.length - 1].id,
     });
+
+    if (this.errors.length === this.maxErrors) {
+      throw new TooManyErrorsError();
+    }
   }
 }
+
+// Just a psuedo-error to short-circuit the case of needing to stop evaluation.
+class TooManyErrorsError extends Error {}

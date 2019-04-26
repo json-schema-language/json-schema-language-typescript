@@ -1,10 +1,34 @@
 import * as fs from "fs";
 import * as path from "path";
 import { compileSchema } from "./CompiledSchema";
+import MaxDepthExceededError from "./MaxDepthExceededError";
 import Registry from "./Registry";
-import Validator from "./Validator";
+import Validator, { DEFAULT_VALIDATOR_CONFIG } from "./Validator";
+import Ptr from "@json-schema-language/json-pointer";
 
 describe("Validator", () => {
+  it("supports maxDepth", () => {
+    const registry = new Registry();
+    registry.register(compileSchema({ ref: "#" }));
+
+    const validator = new Validator(registry);
+    expect(() => {
+      validator.validate(null);
+    }).toThrow(new MaxDepthExceededError());
+  });
+
+  it("supports maxErrors", () => {
+    const registry = new Registry();
+    registry.register(compileSchema({ elements: { type: "string" } }));
+
+    const validator = new Validator(registry, {
+      ...DEFAULT_VALIDATOR_CONFIG,
+      maxErrors: 3,
+    });
+
+    expect(validator.validate([null, null, null, null, null])).toHaveLength(3);
+  });
+
   describe("spec", () => {
     for (const file of fs.readdirSync(path.join(__dirname, "../spec/tests"))) {
       describe(file, () => {
