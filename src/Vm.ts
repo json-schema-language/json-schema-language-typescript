@@ -1,9 +1,9 @@
-import CompiledSchema from "./CompiledSchema";
-import Registry from "./Registry";
-import { ValidationError } from "./Validator";
-import NoSuchSchemaError from "./NoSuchSchemaError";
-import RegistryNotSealedError from "./RegistryNotSealedError";
 import Ptr from "@json-schema-language/json-pointer";
+import CompiledSchema from "./CompiledSchema";
+import NoSuchSchemaError from "./NoSuchSchemaError";
+import Registry from "./Registry";
+import RegistryNotSealedError from "./RegistryNotSealedError";
+import { ValidationError } from "./Validator";
 
 export default class Vm {
   public static validate(
