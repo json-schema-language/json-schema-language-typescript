@@ -3,7 +3,7 @@
     "sourceMap": true,
     "removeComments": true,
     "target": "es6",
-    "module": "commonjs",
+    "module": "es6",
     "lib": ["es2017", "dom"],
     "moduleResolution": "node",
     "declaration": true,
