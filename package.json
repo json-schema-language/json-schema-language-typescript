@@ -1,6 +1,6 @@
 {
   "name": "@json-schema-language/json-schema-language",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A TypeScript / JavaScript / Node.js implementation of JSON Schema Language",
   "main": "lib/index.js",
   "repository": "ssh://git@github.com/json-schema-language/json-schema-language-typescript.git",
