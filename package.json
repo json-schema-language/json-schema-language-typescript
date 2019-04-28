@@ -6,6 +6,9 @@
   "repository": "ssh://git@github.com/json-schema-language/json-schema-language-typescript.git",
   "author": "Ulysse Carion <ulyssecarion@gmail.com>",
   "license": "MIT",
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "@json-schema-language/json-pointer": "^0.1.2"
   },
