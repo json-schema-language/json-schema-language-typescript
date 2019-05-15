@@ -3,7 +3,7 @@
   "version": "0.1.5",
   "description": "A TypeScript / JavaScript / Node.js implementation of JSON Schema Language",
   "main": "lib/index.js",
-  "repository": "ssh://git@github.com/json-schema-language/json-schema-language-typescript.git",
+  "repository": "https://github.com/json-schema-language/json-schema-language-typescript",
   "author": "Ulysse Carion <ulyssecarion@gmail.com>",
   "license": "MIT",
   "files": [
