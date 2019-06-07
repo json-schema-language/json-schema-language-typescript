@@ -1,9 +1,7 @@
 import Ptr from "@json-schema-language/json-pointer";
+import * as moment from "moment";
 import CompiledSchema from "./CompiledSchema";
 import MaxDepthExceededError from "./MaxDepthExceededError";
-import NoSuchSchemaError from "./NoSuchSchemaError";
-import Registry from "./Registry";
-import RegistryNotSealedError from "./RegistryNotSealedError";
 import { ValidationError } from "./Validator";
 
 export default class Vm {
@@ -11,26 +9,10 @@ export default class Vm {
     maxErrors: number,
     maxDepth: number,
     strictInstanceSemantics: boolean,
-    registry: Registry,
-    id: URL | undefined,
+    schema: CompiledSchema,
     instance: any,
   ): ValidationError[] {
-    if (!registry.isSealed()) {
-      throw new RegistryNotSealedError();
-    }
-
-    const schema = registry.get(id);
-    if (schema === undefined) {
-      throw new NoSuchSchemaError();
-    }
-
-    const vm = new Vm(
-      maxErrors,
-      maxDepth,
-      strictInstanceSemantics,
-      registry,
-      id,
-    );
+    const vm = new Vm(maxErrors, maxDepth, strictInstanceSemantics, schema);
 
     try {
       vm.eval(schema, instance);
@@ -48,24 +30,23 @@ export default class Vm {
   private maxErrors: number;
   private maxDepth: number;
   private strictInstanceSemantics: boolean;
-  private registry: Registry;
+  private rootSchema: CompiledSchema;
   private instanceTokens: string[];
-  private schemas: Array<{ id: URL | undefined; tokens: string[] }>;
+  private schemaTokens: string[][];
   private errors: ValidationError[];
 
   constructor(
     maxErrors: number,
     maxDepth: number,
     strictInstanceSemantics: boolean,
-    registry: Registry,
-    id: URL | undefined,
+    rootSchema: CompiledSchema,
   ) {
     this.maxErrors = maxErrors;
     this.maxDepth = maxDepth;
     this.strictInstanceSemantics = strictInstanceSemantics;
-    this.registry = registry;
+    this.rootSchema = rootSchema;
     this.instanceTokens = [];
-    this.schemas = [{ id, tokens: [] }];
+    this.schemaTokens = [[]];
     this.errors = [];
   }
 
@@ -74,35 +55,18 @@ export default class Vm {
       case "empty":
         return;
       case "ref":
-        if (this.schemas.length === this.maxDepth) {
+        if (this.schemaTokens.length === this.maxDepth) {
           throw new MaxDepthExceededError();
         }
 
-        const schemaTokens =
-          schema.form.refDef === undefined
-            ? []
-            : ["definitions", schema.form.refDef];
-
-        const rootSchema = this.registry.get(schema.form.refId);
-        const refSchema =
-          schema.form.refDef === undefined
-            ? rootSchema
-            : rootSchema.root!.definitions[schema.form.refDef];
-
-        this.schemas.push({ id: schema.form.refId, tokens: schemaTokens });
+        const schemaTokens = ["definitions", schema.form.ref];
+        const refSchema = this.rootSchema.definitions![schema.form.ref];
+        this.schemaTokens.push(schemaTokens);
         this.eval(refSchema, instance);
 
         return;
       case "type":
         switch (schema.form.type) {
-          case "null":
-            if (instance !== null) {
-              this.pushSchemaToken("type");
-              this.pushError();
-              this.popSchemaToken();
-            }
-
-            return;
           case "boolean":
             if (typeof instance !== "boolean") {
               this.pushSchemaToken("type");
@@ -124,6 +88,29 @@ export default class Vm {
               this.pushSchemaToken("type");
               this.pushError();
               this.popSchemaToken();
+            }
+
+            return;
+          case "timestamp":
+            if (typeof instance !== "string") {
+              this.pushSchemaToken("type");
+              this.pushError();
+              this.popSchemaToken();
+            } else {
+              // ISO 8601 is unfortunately not quite the same thing as RFC 3339.
+              // However, at the time of writing no adequate alternative,
+              // widely-used library for parsing RFC3339 timestamps exists.
+              //
+              // Notably, moment does not support two of the examples given in
+              // RFC 3339 with "60" in the seconds place. These timestamps arise
+              // due to leap seconds. See:
+              //
+              // https://tools.ietf.org/html/rfc3339#section-5.8
+              if (!moment(instance, moment.ISO_8601).isValid()) {
+                this.pushSchemaToken("type");
+                this.pushError();
+                this.popSchemaToken();
+              }
             }
 
             return;
@@ -190,12 +177,6 @@ export default class Vm {
           this.popSchemaToken();
 
           if (this.strictInstanceSemantics) {
-            if (schema.form.hasProperties) {
-              this.pushSchemaToken("properties");
-            } else {
-              this.pushSchemaToken("optionalProperties");
-            }
-
             for (const name of Object.keys(instance)) {
               if (
                 name !== parentTag &&
@@ -294,11 +275,11 @@ export default class Vm {
   }
 
   private pushSchemaToken(token: string) {
-    this.schemas[this.schemas.length - 1].tokens.push(token);
+    this.schemaTokens[this.schemaTokens.length - 1].push(token);
   }
 
   private popSchemaToken() {
-    this.schemas[this.schemas.length - 1].tokens.pop();
+    this.schemaTokens[this.schemaTokens.length - 1].pop();
   }
 
   private pushInstanceToken(token: string) {
@@ -312,8 +293,7 @@ export default class Vm {
   private pushError() {
     this.errors.push({
       instancePath: new Ptr([...this.instanceTokens]),
-      schemaPath: new Ptr([...this.schemas[this.schemas.length - 1].tokens]),
-      schemaId: this.schemas[this.schemas.length - 1].id,
+      schemaPath: new Ptr([...this.schemaTokens[this.schemaTokens.length - 1]]),
     });
 
     if (this.errors.length === this.maxErrors) {

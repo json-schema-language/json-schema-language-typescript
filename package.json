@@ -10,7 +10,8 @@
     "lib"
   ],
   "dependencies": {
-    "@json-schema-language/json-pointer": "^0.1.2"
+    "@json-schema-language/json-pointer": "^0.1.2",
+    "moment": "^2.24.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.11",

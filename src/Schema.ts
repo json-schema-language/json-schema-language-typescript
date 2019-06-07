@@ -7,7 +7,6 @@
  * type-safe way of taking advantage of this correctness.
  */
 export default interface Schema {
-  id?: string;
   definitions?: { [name: string]: Schema };
   ref?: string;
   type?: string;

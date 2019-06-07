@@ -5,266 +5,61 @@ describe("CompiledSchema", () => {
   describe("compileSchema", () => {
     it("handles root data", () => {
       expect(compileSchema({})).toEqual({
-        root: {
-          definitions: {},
-        },
+        definitions: {},
         form: { form: "empty" },
-        extra: {},
       });
 
       expect(
         compileSchema({
-          id: "http://example.com/foo",
-        }),
-      ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {},
-        },
-        form: { form: "empty" },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          id: "http://example.com/foo",
           definitions: {
             a: {},
           },
         }),
       ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {
-            a: {
-              form: { form: "empty" },
-              extra: {},
-            },
+        definitions: {
+          a: {
+            form: { form: "empty" },
           },
         },
         form: { form: "empty" },
-        extra: {},
       });
     });
 
     it("handles ref form", () => {
       expect(
         compileSchema({
-          ref: "http://example.com/foo",
+          definitions: {
+            a: {},
+          },
+          ref: "a",
         }),
       ).toEqual({
-        root: {
-          definitions: {},
+        definitions: {
+          a: {
+            form: { form: "empty" },
+          },
         },
-        form: { form: "ref", refId: new URL("http://example.com/foo") },
-        extra: {},
+        form: { form: "ref", ref: "a" },
       });
 
-      expect(
+      expect(() => {
         compileSchema({
-          ref: "http://example.com/foo#bar",
-        }),
-      ).toEqual({
-        root: {
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refId: new URL("http://example.com/foo"),
-          refDef: "bar",
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          ref: "",
-        }),
-      ).toEqual({
-        root: {
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          ref: "#",
-        }),
-      ).toEqual({
-        root: {
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          ref: "#bar",
-        }),
-      ).toEqual({
-        root: {
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refDef: "bar",
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          id: "http://example.com/foo",
-          ref: "",
-        }),
-      ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refId: new URL("http://example.com/foo"),
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          id: "http://example.com/foo",
-          ref: "#",
-        }),
-      ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refId: new URL("http://example.com/foo"),
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          id: "http://example.com/foo",
-          ref: "#bar",
-        }),
-      ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refId: new URL("http://example.com/foo"),
-          refDef: "bar",
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          id: "http://example.com/foo",
-          ref: "#bar",
-        }),
-      ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refId: new URL("http://example.com/foo"),
-          refDef: "bar",
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          id: "http://example.com/foo",
-          ref: "/bar",
-        }),
-      ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refId: new URL("http://example.com/bar"),
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          id: "http://example.com/foo",
-          ref: "/bar#",
-        }),
-      ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refId: new URL("http://example.com/bar"),
-        },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
-          id: "http://example.com/foo",
-          ref: "/bar#asdf",
-        }),
-      ).toEqual({
-        root: {
-          id: new URL("http://example.com/foo"),
-          definitions: {},
-        },
-        form: {
-          form: "ref",
-          refId: new URL("http://example.com/bar"),
-          refDef: "asdf",
-        },
-        extra: {},
-      });
+          definitions: {
+            a: {},
+          },
+          ref: "b",
+        });
+      }).toThrow(new InvalidFormError());
     });
 
     it("handles type form", () => {
       expect(
         compileSchema({
-          type: "null",
-        }),
-      ).toEqual({
-        root: {
-          definitions: {},
-        },
-        form: { form: "type", type: "null" },
-        extra: {},
-      });
-
-      expect(
-        compileSchema({
           type: "boolean",
         }),
       ).toEqual({
-        root: {
-          definitions: {},
-        },
+        definitions: {},
         form: { form: "type", type: "boolean" },
-        extra: {},
       });
 
       expect(
@@ -272,11 +67,8 @@ describe("CompiledSchema", () => {
           type: "number",
         }),
       ).toEqual({
-        root: {
-          definitions: {},
-        },
+        definitions: {},
         form: { form: "type", type: "number" },
-        extra: {},
       });
 
       expect(
@@ -284,11 +76,17 @@ describe("CompiledSchema", () => {
           type: "string",
         }),
       ).toEqual({
-        root: {
-          definitions: {},
-        },
+        definitions: {},
         form: { form: "type", type: "string" },
-        extra: {},
+      });
+
+      expect(
+        compileSchema({
+          type: "timestamp",
+        }),
+      ).toEqual({
+        definitions: {},
+        form: { form: "type", type: "timestamp" },
       });
     });
 
@@ -298,17 +96,13 @@ describe("CompiledSchema", () => {
           elements: {},
         }),
       ).toEqual({
-        root: {
-          definitions: {},
-        },
+        definitions: {},
         form: {
           form: "elements",
           schema: {
             form: { form: "empty" },
-            extra: {},
           },
         },
-        extra: {},
       });
     });
 
@@ -323,26 +117,21 @@ describe("CompiledSchema", () => {
           },
         }),
       ).toEqual({
-        root: {
-          definitions: {},
-        },
+        definitions: {},
         form: {
           form: "properties",
           hasProperties: true,
           required: {
             a: {
               form: { form: "empty" },
-              extra: {},
             },
           },
           optional: {
             b: {
               form: { form: "empty" },
-              extra: {},
             },
           },
         },
-        extra: {},
       });
 
       expect(() => {
@@ -363,17 +152,13 @@ describe("CompiledSchema", () => {
           values: {},
         }),
       ).toEqual({
-        root: {
-          definitions: {},
-        },
+        definitions: {},
         form: {
           form: "values",
           schema: {
             form: { form: "empty" },
-            extra: {},
           },
         },
-        extra: {},
       });
     });
 
@@ -388,9 +173,7 @@ describe("CompiledSchema", () => {
           },
         }),
       ).toEqual({
-        root: {
-          definitions: {},
-        },
+        definitions: {},
         form: {
           form: "discriminator",
           tag: "foo",
@@ -402,11 +185,9 @@ describe("CompiledSchema", () => {
                 required: {},
                 optional: {},
               },
-              extra: {},
             },
           },
         },
-        extra: {},
       });
 
       expect(() => {
@@ -449,21 +230,6 @@ describe("CompiledSchema", () => {
           },
         });
       }).toThrow(new InvalidFormError());
-
-      // expect(
-      //   () => {
-      //     compileSchema({
-      //       discriminator: {
-      //         tag: "foo",
-      //         mapping: {
-      //           a: {},
-      //         },
-      //       },
-      //     }),
-      //   },
-      // ).toThrowError(
-      //   new InvalidFormError(),
-      // );
     });
   });
 });

@@ -2,30 +2,32 @@ import * as fs from "fs";
 import * as path from "path";
 import { compileSchema } from "./CompiledSchema";
 import MaxDepthExceededError from "./MaxDepthExceededError";
-import Registry from "./Registry";
 import Validator, { DEFAULT_VALIDATOR_CONFIG } from "./Validator";
 
 describe("Validator", () => {
   it("supports maxDepth", () => {
-    const registry = new Registry();
-    registry.register(compileSchema({ ref: "#" }));
+    const schema = compileSchema({
+      definitions: { a: { ref: "a" } },
+      ref: "a",
+    });
 
-    const validator = new Validator(registry);
+    const validator = new Validator();
     expect(() => {
-      validator.validate(null);
+      validator.validate(schema, null);
     }).toThrow(new MaxDepthExceededError());
   });
 
   it("supports maxErrors", () => {
-    const registry = new Registry();
-    registry.register(compileSchema({ elements: { type: "string" } }));
+    const schema = compileSchema({ elements: { type: "string" } });
 
-    const validator = new Validator(registry, {
+    const validator = new Validator({
       ...DEFAULT_VALIDATOR_CONFIG,
       maxErrors: 3,
     });
 
-    expect(validator.validate([null, null, null, null, null])).toHaveLength(3);
+    expect(
+      validator.validate(schema, [null, null, null, null, null]),
+    ).toHaveLength(3);
   });
 
   describe("spec", () => {
@@ -37,34 +39,21 @@ describe("Validator", () => {
         );
         const tests = JSON.parse(contents);
 
-        for (const {
-          name,
-          registry,
-          schema,
-          strictInstance,
-          instances,
-        } of tests) {
+        for (const { name, schema, strictInstance, instances } of tests) {
           describe(name, () => {
-            const reg = new Registry();
-
-            reg.register(compileSchema(schema));
-            for (const testSchema of registry) {
-              reg.register(compileSchema(testSchema));
-            }
-
-            const validator = new Validator(reg, {
+            const validator = new Validator({
               ...DEFAULT_VALIDATOR_CONFIG,
               strictInstanceSemantics: strictInstance,
             });
 
             for (const [index, { instance, errors }] of instances.entries()) {
               it(index.toString(), () => {
-                const actualErrors = validator.validate(instance).map(err => ({
-                  instancePath: err.instancePath.toString(),
-                  schemaPath: err.schemaPath.toString(),
-                  schemaURI:
-                    err.schemaId === undefined ? "" : err.schemaId.toString(),
-                }));
+                const actualErrors = validator
+                  .validate(compileSchema(schema), instance)
+                  .map(err => ({
+                    instancePath: err.instancePath.toString(),
+                    schemaPath: err.schemaPath.toString(),
+                  }));
 
                 actualErrors.sort((a, b) =>
                   `${a.schemaPath}:${a.instancePath}` <

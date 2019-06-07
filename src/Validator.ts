@@ -1,23 +1,20 @@
 import Ptr from "@json-schema-language/json-pointer";
-import Registry from "./Registry";
+import CompiledSchema from "./CompiledSchema";
 import Vm from "./Vm";
 
 export default class Validator {
-  private registry: Registry;
   private config: ValidatorConfig;
 
-  constructor(registry: Registry, config?: ValidatorConfig) {
-    this.registry = registry;
+  constructor(config?: ValidatorConfig) {
     this.config = config || DEFAULT_VALIDATOR_CONFIG;
   }
 
-  public validate(instance: any, schemaId?: URL): ValidationError[] {
+  public validate(schema: CompiledSchema, instance: any): ValidationError[] {
     return Vm.validate(
       this.config.maxErrors,
       this.config.maxDepth,
       this.config.strictInstanceSemantics,
-      this.registry,
-      schemaId,
+      schema,
       instance,
     );
   }
