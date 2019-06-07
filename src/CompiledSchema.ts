@@ -113,6 +113,14 @@ function compileSchemaInternal(schema: Schema): CompiledSchema {
     }
   }
 
+  if (schema.enum !== undefined) {
+    if (form.form !== "empty") {
+      throw new InvalidFormError();
+    }
+
+    form = { form: "enum", values: schema.enum };
+  }
+
   if (schema.elements !== undefined) {
     if (form.form !== "empty") {
       throw new InvalidFormError();

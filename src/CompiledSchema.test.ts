@@ -90,6 +90,17 @@ describe("CompiledSchema", () => {
       });
     });
 
+    it("handles enum form", () => {
+      expect(
+        compileSchema({
+          enum: ["FOO", "BAR"],
+        }),
+      ).toEqual({
+        definitions: {},
+        form: { form: "enum", values: ["FOO", "BAR"] },
+      });
+    });
+
     it("handles elements form", () => {
       expect(
         compileSchema({

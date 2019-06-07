@@ -117,6 +117,20 @@ export default class Vm {
         }
 
         return;
+      case "enum":
+        if (typeof instance === "string") {
+          if (!schema.form.values.includes(instance)) {
+            this.pushSchemaToken("enum");
+            this.pushError();
+            this.popSchemaToken();
+          }
+        } else {
+          this.pushSchemaToken("enum");
+          this.pushError();
+          this.popSchemaToken();
+        }
+
+        return;
       case "elements":
         this.pushSchemaToken("elements");
 

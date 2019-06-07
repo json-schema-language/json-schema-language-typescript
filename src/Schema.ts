@@ -10,6 +10,7 @@ export default interface Schema {
   definitions?: { [name: string]: Schema };
   ref?: string;
   type?: string;
+  enum?: string[];
   elements?: Schema;
   properties?: { [name: string]: Schema };
   optionalProperties?: { [name: string]: Schema };
