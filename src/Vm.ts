@@ -76,12 +76,38 @@ export default class Vm {
 
             return;
           case "number":
+          case "float32":
+          case "float64":
             if (typeof instance !== "number") {
               this.pushSchemaToken("type");
               this.pushError();
               this.popSchemaToken();
             }
 
+            return;
+          case "int8":
+            this.checkInt(instance, -128, 127);
+            return;
+          case "uint8":
+            this.checkInt(instance, 0, 255);
+            return;
+          case "int16":
+            this.checkInt(instance, -32768, 32767);
+            return;
+          case "uint16":
+            this.checkInt(instance, 0, 65535);
+            return;
+          case "int32":
+            this.checkInt(instance, -2147483648, 2147483647);
+            return;
+          case "uint32":
+            this.checkInt(instance, 0, 4294967295);
+            return;
+          case "int64":
+            this.checkInt(instance, -9223372036854775808, 9223372036854775807);
+            return;
+          case "uint64":
+            this.checkInt(instance, 0, 18446744073709551615);
             return;
           case "string":
             if (typeof instance !== "string") {
@@ -285,6 +311,19 @@ export default class Vm {
         this.popSchemaToken();
 
         return;
+    }
+  }
+
+  private checkInt(instance: any, min: number, max: number) {
+    if (
+      typeof instance !== "number" ||
+      !Number.isInteger(instance) ||
+      instance < min ||
+      instance > max
+    ) {
+      this.pushSchemaToken("type");
+      this.pushError();
+      this.popSchemaToken();
     }
   }
 

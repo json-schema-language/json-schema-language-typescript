@@ -43,7 +43,21 @@ export interface RefForm {
 
 export interface TypeForm {
   form: "type";
-  type: "boolean" | "number" | "string" | "timestamp";
+  type:
+    | "boolean"
+    | "number"
+    | "float32"
+    | "float64"
+    | "int8"
+    | "uint8"
+    | "int16"
+    | "uint16"
+    | "int32"
+    | "uint32"
+    | "int64"
+    | "uint64"
+    | "string"
+    | "timestamp";
 }
 
 export interface EnumForm {
@@ -104,6 +118,16 @@ function compileSchemaInternal(schema: Schema): CompiledSchema {
     if (
       schema.type === "boolean" ||
       schema.type === "number" ||
+      schema.type === "float32" ||
+      schema.type === "float64" ||
+      schema.type === "int8" ||
+      schema.type === "uint8" ||
+      schema.type === "int16" ||
+      schema.type === "uint16" ||
+      schema.type === "int32" ||
+      schema.type === "uint32" ||
+      schema.type === "int64" ||
+      schema.type === "uint64" ||
       schema.type === "string" ||
       schema.type === "timestamp"
     ) {
