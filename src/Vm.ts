@@ -63,6 +63,7 @@ export default class Vm {
         const refSchema = this.rootSchema.definitions![schema.form.ref];
         this.schemaTokens.push(schemaTokens);
         this.eval(refSchema, instance);
+        this.schemaTokens.pop();
 
         return;
       case "type":
