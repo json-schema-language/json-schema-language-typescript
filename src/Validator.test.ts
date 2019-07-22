@@ -51,8 +51,8 @@ describe("Validator", () => {
                 const actualErrors = validator
                   .validate(compileSchema(schema), instance)
                   .map(err => ({
-                    instancePath: err.instancePath.toString(),
-                    schemaPath: err.schemaPath.toString(),
+                    instancePath: err.instancePath.map(p => `/${p}`).join(""),
+                    schemaPath: err.schemaPath.map(p => `/${p}`).join(""),
                   }));
 
                 actualErrors.sort((a, b) =>

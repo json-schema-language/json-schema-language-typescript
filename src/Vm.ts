@@ -1,4 +1,3 @@
-import Ptr from "@json-schema-language/json-pointer";
 import * as moment from "moment";
 import CompiledSchema from "./CompiledSchema";
 import MaxDepthExceededError from "./MaxDepthExceededError";
@@ -346,8 +345,8 @@ export default class Vm {
 
   private pushError() {
     this.errors.push({
-      instancePath: new Ptr([...this.instanceTokens]),
-      schemaPath: new Ptr([...this.schemaTokens[this.schemaTokens.length - 1]]),
+      instancePath: [...this.instanceTokens],
+      schemaPath: [...this.schemaTokens[this.schemaTokens.length - 1]],
     });
 
     if (this.errors.length === this.maxErrors) {

@@ -1,4 +1,3 @@
-import Ptr from "@json-schema-language/json-pointer";
 import CompiledSchema from "./CompiledSchema";
 import Vm from "./Vm";
 
@@ -33,7 +32,7 @@ export const DEFAULT_VALIDATOR_CONFIG = {
 };
 
 export interface ValidationError {
-  instancePath: Ptr;
-  schemaPath: Ptr;
+  instancePath: string[];
+  schemaPath: string[];
   schemaId?: URL;
 }

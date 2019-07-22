@@ -285,11 +285,6 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
-"@json-schema-language/json-pointer@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@json-schema-language/json-pointer/-/json-pointer-0.1.2.tgz#c994a54300d841aac0041699cae4b1d864e0cdf6"
-  integrity sha512-tbtod9BLZyS53s4LxFKJ2igqoGE7Kd8CKYwpDDcIfq096gG8Uh08LDoyOXXDMyDRYoFS5MagDb5uxdwfjtMleg==
-
 "@types/babel__core@^7.1.0":
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.2.tgz#608c74f55928033fce18b99b213c16be4b3d114f"
