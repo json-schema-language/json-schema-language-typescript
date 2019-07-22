@@ -31,7 +31,6 @@ Here's how you can use this package to validate inputted data:
 ```typescript
 import {
   compileSchema,
-  Registry,
   Validator,
 } from "@json-schema-language/json-schema-language";
 
@@ -49,19 +48,9 @@ const schema = compileSchema({
   },
 });
 
-// A registry is a collection of schemas that may refer to one another. Registry
-// will check that your cross-references are kosher, and will let you know what
-// schemas are "missing" (referred-to, but not included) from the registry.
-const registry = new Registry();
-const missingIds = registry.register(schema);
-
-// Since our schema doesn't even use cross-references, we're sure that there
-// won't be any missing IDs.
-console.log(missingIds); // []
-
 // Once you've registered all your schemas, you can efficiently validate as many
 // inputs as desired.
-const validator = new Validator(registry);
+const validator = new Validator();
 
 // Validator.validate returns an array of validation errors. By default, all
 // errors are returned, but you can also configure Validator to limit how many
